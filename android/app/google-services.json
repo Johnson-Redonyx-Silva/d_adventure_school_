@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "418267352029",
+    "project_id": "d-adventure-school-auth",
+    "storage_bucket": "d-adventure-school-auth.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:418267352029:android:0ca1a04b22e879cc538434",
+        "android_client_info": {
+          "package_name": "com.example.d_adventure_school"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBYQcAJpYEpospn7rtsTfFcdZo89s6gJdo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
