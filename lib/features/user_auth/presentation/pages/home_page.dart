@@ -2,9 +2,7 @@ import 'package:d_adventure_school/features/user_auth/presentation/pages/add_tas
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:d_adventure_school/global/common/toast.dart';
-
-import '../../../../global/common/toast.dart';
-import '../../../../utils/firebase_service.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class HomePage extends StatefulWidget {
   final User user;
@@ -17,52 +15,73 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  String role = '';
+  @override
+  void initState() {
+    super.initState();
+    getUserdata();
+  }
+
+  getUserdata() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    setState(() {
+      role = prefs.getString('role') ?? 'No role';
+    });
+    print(role);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: false,
-        title: Text("HomePage"),
+        title: Text('$role console'),
         actions: [
+          role == 'teacher'
+              ? IconButton(
+                  onPressed: () async {
+                    // await getUsers();
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => const AddTasks()));
+                  },
+                  icon: const Icon(Icons.add))
+              : const SizedBox(),
           IconButton(
-              onPressed: ()async {
-                // await getUsers();
-                Navigator.push(context,
-                    MaterialPageRoute(builder: (context) => AddTasks()));
-              },
-              icon: Icon(Icons.add)),
-          IconButton(
-              onPressed: () {
+              onPressed: () async {
                 FirebaseAuth.instance.signOut();
                 Navigator.pushNamed(context, "/login");
+                SharedPreferences prefs = await SharedPreferences.getInstance();
+                prefs.clear(); // This clears all data in SharedPreferences
                 showToast(message: "Successfully signed out");
               },
-              icon: Icon(Icons.logout))
+              icon: const Icon(Icons.logout))
         ],
       ),
       body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(
-              "Welcome, ${widget.user.email}",
-              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 19),
-            ),
-            Text(
-              widget.data['role'],
-              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 19),
-            ),
-            if (widget.data['role'] == 'teacher')
-              ElevatedButton(
-                onPressed: () {},
-                child: const Text(
-                  'only for teacher',
-                  style: TextStyle(color: Colors.white),
+        child: Padding(
+          padding: const EdgeInsets.only(bottom: 8.0),
+          child: ListView(
+            children: List.generate(
+              10,
+              (index) => ElevatedButton(
+                onPressed: () {
+                  // Add your onPressed logic here
+                },
+                style: ElevatedButton.styleFrom(
+                  elevation: 5, // Adjust the elevation as needed
                 ),
-              )
-            else
-              const Padding(padding: EdgeInsets.all(0)),
-          ],
+                child: ListTile(
+                  title: Text('Item $index'),
+                  subtitle: Text('Subtitle $index'),
+                  leading: Icon(Icons.star), // Replace with your desired icon
+                  trailing: Icon(
+                      Icons.arrow_forward), // Replace with your desired icon
+                ),
+              ),
+            ),
+          ),
         ),
       ),
     );

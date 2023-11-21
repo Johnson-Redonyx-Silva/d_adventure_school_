@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:uuid/uuid.dart';
 
 import '../../../../utils/firebase_service.dart';
 
@@ -23,6 +22,7 @@ class _AddTasksState extends State<AddTasks> {
     super.initState();
     getUser();
   }
+
   @override
   void dispose() {
     super.dispose();
@@ -96,23 +96,6 @@ class _AddTasksState extends State<AddTasks> {
               )
             ],
           ),
-          // DropdownButton<String>(
-          //   value: selectedUsername,
-          //   hint: Text('Select a username'),
-          //   onChanged: (String? newValue) {
-          //     print('object');
-          //     setState(() {
-          //       selectedUsername = newValue!;
-          //       selectedUid = userDataTemp.firstWhere((user) => user['username'] == newValue)['uid'];
-          //     });
-          //   },
-          //   items: userDataTemp.map((user) {
-          //     return DropdownMenuItem<String>(
-          //       value: user['username'],
-          //       child: Text(user['username']),
-          //     );
-          //   }).toList(),
-          // ),
           Padding(
             padding: const EdgeInsets.all(8.0),
             child: Row(
@@ -168,7 +151,7 @@ class _AddTasksState extends State<AddTasks> {
                 'taskName': _taskNameController.text,
                 'task_des': _taskDescController.text,
               };
-              var res= await addTask(taskData);
+              var res = await addTask(taskData);
               print(res);
             },
             child: const Text("Submit"),

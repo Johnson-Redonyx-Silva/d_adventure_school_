@@ -8,11 +8,11 @@ Future<List<Map<String, dynamic>>> getUsers() async {
 
   try {
     QuerySnapshot<Map<String, dynamic>> usersSnapshot =
-    await firestore.collection('users').get();
+        await firestore.collection('users').get();
 
     // Loop through the documents to access user data
     for (QueryDocumentSnapshot<Map<String, dynamic>> user
-    in usersSnapshot.docs) {
+        in usersSnapshot.docs) {
       // Access user data using user.data()
       Map<String, dynamic> userData = user.data();
 
@@ -31,14 +31,15 @@ Future<List<Map<String, dynamic>>> getUsers() async {
   }
 }
 
-Future<String> addTask(data)async{
+Future<String> addTask(data) async {
   final taskId = const Uuid().v1();
-  String res='';
+  // ignore: unused_local_variable
+  String res = '';
   final FirebaseFirestore firestore = FirebaseFirestore.instance;
   print('data : $data["uid"]');
-  try{
+  try {
     final CollectionReference usersCollection = firestore.collection('tasks');
-    final DocumentReference userDocument = usersCollection.doc(data.taskId);
+    final DocumentReference userDocument = usersCollection.doc(taskId);
     await userDocument.set({
       'uid': data['uid'],
       'username': data['username'],
@@ -46,10 +47,8 @@ Future<String> addTask(data)async{
       'taskName': data['taskName'],
       'task_des': data['task_des'],
     });
-    return res='task stored';
+    return res = 'task stored';
+  } catch (e) {
+    return res = e.toString();
   }
-      catch(e){
-    return e.toString();
-      }
-
 }
