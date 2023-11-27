@@ -163,66 +163,30 @@ class _HomePageState extends State<HomePage> {
                   );
                 } else {
                   final task = filteredTasks[index];
-                  return Dismissible(
-                    key: Key(task['uid'].toString()),
-                    onDismissed: (direction) {
-                      setState(() {
-                        tasks.removeAt(index);
-                        filteredTasks.removeAt(index);
-                      });
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text('Task deleted'),
-                          action: SnackBarAction(
-                            label: 'Undo',
-                            onPressed: () {
-                              setState(() {
-                                tasks.insert(index, task);
-                                filteredTasks = tasks;
-                              });
-                            },
-                          ),
-                        ),
-                      );
-                    },
-                    background: Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Container(
-                        color: Colors.grey,
-                        child: Icon(
-                          Icons.delete,
-                          color: Colors.black,
-                        ),
-                        alignment: Alignment.centerRight,
-                        padding: const EdgeInsets.only(right: 16.0),
+                  return Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: ListTile(
+                      title: Text(
+                        task['username'],
+                        style: TextStyle(fontWeight: FontWeight.bold),
                       ),
-                    ),
-                    child: Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: ListTile(
-                        splashColor: Colors.green,
-                        title: Text(
-                          task['username'],
-                          style: TextStyle(fontWeight: FontWeight.bold),
-                        ),
-                        subtitle: Text(
-                          'Task: ${task['taskName']}\nTask Description: ${task['task_des']}',
-                        ),
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => TaskDetailsPage(
-                                taskDetails: task,
-                              ),
+                      subtitle: Text(
+                        'Task: ${task['taskName']}\nTask Description: ${task['task_des']}',
+                      ),
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => TaskDetailsPage(
+                              taskDetails: task,
                             ),
-                          );
-                        },
-                        tileColor: const Color(0x0C01A674),
-                        shape: RoundedRectangleBorder(
-                          side: BorderSide(width: 1, color: Colors.green),
-                          borderRadius: BorderRadius.circular(5),
-                        ),
+                          ),
+                        );
+                      },
+                      tileColor: const Color(0x0C01A674),
+                      shape: RoundedRectangleBorder(
+                        side: BorderSide(width: 1, color: Colors.green),
+                        borderRadius: BorderRadius.circular(5),
                       ),
                     ),
                   );
