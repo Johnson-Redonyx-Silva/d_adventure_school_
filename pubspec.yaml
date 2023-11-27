@@ -28,7 +28,7 @@ environment:
 # the latest version available on pub.dev. To see which dependencies have newer
 # versions available, run `flutter pub outdated`.
 dependencies:
-  cloud_firestore: 
+  cloud_firestore: any
   cupertino_icons: ^1.0.2
   firebase_auth: ^4.9.0
   firebase_core: any
@@ -40,6 +40,13 @@ dependencies:
   uuid: ^4.2.1
 
 dev_dependencies:
+  flutter_launcher_icons: ^0.13.1
+
+flutter_icons:
+  android: true
+  ios: true
+  image_path: "assets/tent 1.png"
+
 
   # The "flutter_lints" package below contains a set of recommended lints to
   # encourage good coding practices. The lint set provided by the package is
