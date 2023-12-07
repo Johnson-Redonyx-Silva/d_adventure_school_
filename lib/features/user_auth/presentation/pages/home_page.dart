@@ -21,23 +21,47 @@ class _HomePageState extends State<HomePage> {
   List<Map<String, dynamic>> tasks = [];
   List<Map<String, dynamic>> filteredTasks = [];
   TextEditingController searchController = TextEditingController();
+  bool isRefreshing = false;
 
   @override
   void initState() {
     super.initState();
-    getUserdata();
+    checkLoginStatus();
     getTasksForUser();
   }
 
+  Future<void> checkLoginStatus() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    bool isLoggedIn = prefs.getBool('isLoggedIn') ?? false;
+
+    if (!isLoggedIn) {
+      Navigator.pushReplacementNamed(context, '/login');
+    }
+  }
+
   Future<void> getTasksForUser() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    setState(() {
+      role = prefs.getString('role') ?? 'No role';
+    });
+    print("role--->$role");
     String userId = widget.user.uid;
 
     try {
-      QuerySnapshot tasksSnapshot = await FirebaseFirestore.instance
-          .collection('tasks')
-          .doc(userId)
-          .collection('userTasks')
-          .get();
+      QuerySnapshot tasksSnapshot;
+
+      if (role == 'student') {
+        tasksSnapshot = await FirebaseFirestore.instance
+            .collection('tasks')
+            .where('uid', isEqualTo: userId)
+            .get();
+      } else if (role == 'teacher') {
+        tasksSnapshot =
+            await FirebaseFirestore.instance.collection('tasks').get();
+      } else {
+        // Handle other roles or unexpected scenarios
+        return;
+      }
 
       List<Map<String, dynamic>> userTasks = [];
       tasksSnapshot.docs.forEach((doc) {
@@ -47,6 +71,9 @@ class _HomePageState extends State<HomePage> {
           userTasks.add(data);
         }
       });
+
+      // Sort the userTasks based on the createdAt field in descending order
+      userTasks.sort((a, b) => b['createdAt'].compareTo(a['createdAt']));
 
       setState(() {
         tasks = userTasks;
@@ -108,18 +135,18 @@ class _HomePageState extends State<HomePage> {
         actions: [
           role == 'teacher'
               ? IconButton(
-            onPressed: () async {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => AddTasks(
-                    onTaskAdded: addTaskToList,
-                  ),
-                ),
-              );
-            },
-            icon: const Icon(Icons.add),
-          )
+                  onPressed: () async {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => AddTasks(
+                          onTaskAdded: addTaskToList,
+                        ),
+                      ),
+                    );
+                  },
+                  icon: const Icon(Icons.add),
+                )
               : const SizedBox(),
           IconButton(
             onPressed: () async {
@@ -132,69 +159,85 @@ class _HomePageState extends State<HomePage> {
           )
         ],
       ),
-      body: Column(
-        children: [
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: TextField(
-              controller: searchController,
-              onChanged: (query) {
-                searchTasks(query);
-              },
-              decoration: InputDecoration(
-                labelText: 'Search',
-                prefixIcon: Icon(Icons.search),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.all(Radius.circular(10.0)),
+      body: RefreshIndicator(
+        onRefresh: () async {
+          setState(() {
+            isRefreshing = true;
+          });
+          await getTasksForUser();
+          setState(() {
+            isRefreshing = false;
+          });
+        },
+        child: Column(
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: TextField(
+                controller: searchController,
+                onChanged: (query) {
+                  searchTasks(query);
+                },
+                decoration: InputDecoration(
+                  labelText: 'Search',
+                  prefixIcon: Icon(Icons.search),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.all(Radius.circular(10.0)),
+                  ),
                 ),
               ),
             ),
-          ),
-          Expanded(
-            child: ListView.builder(
-              itemCount: filteredTasks.isEmpty ? 1 : filteredTasks.length,
-              itemBuilder: (context, index) {
-                if (filteredTasks.isEmpty) {
-                  return Center(
-                    child: Text(
-                      'No matching tasks found.',
-                      style: TextStyle(fontSize: 16),
-                    ),
-                  );
-                } else {
-                  final task = filteredTasks[index];
-                  return Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: ListTile(
-                      title: Text(
-                        task['username'],
-                        style: TextStyle(fontWeight: FontWeight.bold),
-                      ),
-                      subtitle: Text(
-                        'Task: ${task['taskName']}\nTask Description: ${task['task_des']}',
-                      ),
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => TaskDetailsPage(
-                              taskDetails: task,
+            Expanded(
+              child: isRefreshing
+                  ? Center(
+                      child: CircularProgressIndicator(),
+                    )
+                  : ListView.builder(
+                      itemCount:
+                          filteredTasks.isEmpty ? 1 : filteredTasks.length,
+                      itemBuilder: (context, index) {
+                        if (filteredTasks.isEmpty) {
+                          return Center(
+                            child: Text(
+                              'No matching tasks found.',
+                              style: TextStyle(fontSize: 16),
                             ),
-                          ),
-                        );
+                          );
+                        } else {
+                          final task = filteredTasks[index];
+                          return Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: ListTile(
+                              title: Text(
+                                task['username'],
+                                style: TextStyle(fontWeight: FontWeight.bold),
+                              ),
+                              subtitle: Text(
+                                'Task: ${task['taskName']}\nTask Description: ${task['task_des']}',
+                              ),
+                              onTap: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => TaskDetailsPage(
+                                      taskDetails: task,
+                                    ),
+                                  ),
+                                );
+                              },
+                              tileColor: const Color(0x0C01A674),
+                              shape: RoundedRectangleBorder(
+                                side: BorderSide(width: 1, color: Colors.green),
+                                borderRadius: BorderRadius.circular(5),
+                              ),
+                            ),
+                          );
+                        }
                       },
-                      tileColor: const Color(0x0C01A674),
-                      shape: RoundedRectangleBorder(
-                        side: BorderSide(width: 1, color: Colors.green),
-                        borderRadius: BorderRadius.circular(5),
-                      ),
                     ),
-                  );
-                }
-              },
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

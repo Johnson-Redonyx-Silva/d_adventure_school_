@@ -38,15 +38,18 @@ Future<String> addTask(data) async {
   final FirebaseFirestore firestore = FirebaseFirestore.instance;
   print('data : $data["uid"]');
   try {
-    final CollectionReference usersCollection = firestore.collection('tasks');
-    final DocumentReference userDocument = usersCollection.doc(taskId);
-    await userDocument.set({
+    final CollectionReference tasksCollection = firestore.collection('tasks');
+    final DocumentReference taskDocument = tasksCollection.doc(taskId);
+
+    await taskDocument.set({
       'uid': data['uid'],
       'username': data['username'],
       'taskId': taskId,
       'taskName': data['taskName'],
       'task_des': data['task_des'],
+      'createdAt': FieldValue.serverTimestamp(), // Add this line for timestamp
     });
+
     return res = 'task stored';
   } catch (e) {
     return res = e.toString();

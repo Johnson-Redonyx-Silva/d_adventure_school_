@@ -223,15 +223,16 @@ class _LoginPageState extends State<LoginPage> {
       _isSigning = false;
     });
     showToast(message: "User is successfully signed in");
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    prefs.setString('role', userSnapshot['role']);
+    prefs.setString('username', userSnapshot['username']);
+    prefs.setString('uid', userSnapshot['uid']);
+    prefs.setBool('isLoggedIn', true);
     Navigator.push(
       context,
       MaterialPageRoute(
         builder: (context) => HomePage(user: user, data: userSnapshot),
       ),
     );
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    prefs.setString('role', userSnapshot['role']);
-    prefs.setString('username', userSnapshot['username']);
-    prefs.setString('uid', userSnapshot['uid']);
   }
 }
