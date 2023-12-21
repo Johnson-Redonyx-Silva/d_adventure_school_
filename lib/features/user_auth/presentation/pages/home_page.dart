@@ -33,7 +33,8 @@ class _HomePageState extends State<HomePage> {
   Future<void> checkLoginStatus() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     bool isLoggedIn = prefs.getBool('isLoggedIn') ?? false;
-
+    var username = prefs.getString('username');
+    print('username @@@ => $username');
     if (!isLoggedIn) {
       Navigator.pushReplacementNamed(context, '/login');
     }

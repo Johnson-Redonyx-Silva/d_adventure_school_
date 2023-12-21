@@ -1,8 +1,9 @@
-import 'package:d_adventure_school/features/app/splash_screen/splash_screen.dart';
-import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart'; // Import Firebase Auth
+import 'package:shared_preferences/shared_preferences.dart';
+
+import 'package:d_adventure_school/features/app/splash_screen/splash_screen.dart';
 import 'package:d_adventure_school/features/user_auth/presentation/pages/home_page.dart';
 import 'package:d_adventure_school/features/user_auth/presentation/pages/login_page.dart';
 import 'package:d_adventure_school/features/user_auth/presentation/pages/sign_up_page.dart';
@@ -28,7 +29,7 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.green),
         useMaterial3: true,
       ),
-      title: 'Flutter Firebase',
+      title: 'd-adventure-school',
       home: FutureBuilder(
         // Check the login status before building the main app
         future: checkLoginStatus(),
@@ -40,6 +41,7 @@ class MyApp extends StatelessWidget {
                 user: FirebaseAuth.instance.currentUser!,
                 data: FirebaseAuth.instance.currentUser!,
               );
+              // return Dashboard();
             } else {
               // If the user is not logged in, navigate to the login page
               return SplashScreen(

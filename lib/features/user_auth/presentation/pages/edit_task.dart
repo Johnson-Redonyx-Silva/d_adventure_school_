@@ -1,19 +1,16 @@
+import 'package:d_adventure_school/utils/firebase_service.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import '../../../../utils/firebase_service.dart';
 
-class AddTasks extends StatefulWidget {
-  final Function(Map<String, dynamic>) onTaskAdded;
-
-  const AddTasks({Key? key, required this.onTaskAdded}) : super(key: key);
+class EditTask extends StatefulWidget {
+  final Map<String, dynamic> taskDetails;
+  const EditTask({Key? key, required this.taskDetails}) : super(key: key);
 
   @override
-  State<AddTasks> createState() => _AddTasksState();
+  State<EditTask> createState() => _EditTaskState();
 }
 
-class _AddTasksState extends State<AddTasks> {
-  List<Map<String, dynamic>> userDataTemp = [];
-
+class _EditTaskState extends State<EditTask> {
   var loginUser = '';
   String selectedUsername = '';
   String selectedUid = '';
@@ -24,7 +21,23 @@ class _AddTasksState extends State<AddTasks> {
   @override
   void initState() {
     super.initState();
-    getUser();
+    getLoginUser();
+    patchValues();
+  }
+
+  patchValues() async {
+    setState(() {
+      this.selectedUsername = widget.taskDetails['username'];
+      this.selectedUid = widget.taskDetails['uid'];
+      _taskNameController.text = widget.taskDetails['taskName'];
+      _taskDescController.text = widget.taskDetails['task_des'];
+    });
+    print(this.selectedUid);
+  }
+
+  getLoginUser() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    loginUser = prefs.getString('username').toString();
   }
 
   @override
@@ -32,13 +45,6 @@ class _AddTasksState extends State<AddTasks> {
     super.dispose();
     _taskNameController.dispose();
     _taskDescController.dispose();
-  }
-
-  getUser() async {
-    userDataTemp = await getUsers();
-    print('userDataTemp : $userDataTemp');
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    loginUser = prefs.getString('username').toString();
   }
 
   void _showSnackBar(String message) {
@@ -51,7 +57,7 @@ class _AddTasksState extends State<AddTasks> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("New Task"),
+        title: const Text("Edit Task"),
       ),
       body: Form(
         key: _formKey,
@@ -87,27 +93,27 @@ class _AddTasksState extends State<AddTasks> {
                           context: context,
                           builder: (BuildContext context) {
                             return Container(
-                              // height: 200,
-                              child: ListView.builder(
-                                itemCount: userDataTemp.length,
-                                itemBuilder: (context, index) {
-                                  final user = userDataTemp[index];
-                                  return ListTile(
-                                    title: Text(user['username']),
-                                    trailing: (selectedUid == user['uid'])
-                                        ? const Icon(Icons.check)
-                                        : null,
-                                    onTap: () {
-                                      setState(() {
-                                        selectedUsername = user['username'];
-                                        selectedUid = user['uid'];
-                                      });
-                                      Navigator.pop(context);
-                                    },
-                                  );
-                                },
-                              ),
-                            );
+                                // height: 200,
+                                // child: ListView.builder(
+                                //   itemCount: userDataTemp.length,
+                                //   itemBuilder: (context, index) {
+                                //     final user = userDataTemp[index];
+                                //     return ListTile(
+                                //       title: Text(user['username']),
+                                //       trailing: (selectedUid == user['uid'])
+                                //           ? const Icon(Icons.check)
+                                //           : null,
+                                //       onTap: () {
+                                //         setState(() {
+                                //           selectedUsername = user['username'];
+                                //           selectedUid = user['uid'];
+                                //         });
+                                //         Navigator.pop(context);
+                                //       },
+                                //     );
+                                //   },
+                                // ),
+                                );
                           },
                         );
                       },
@@ -226,15 +232,15 @@ class _AddTasksState extends State<AddTasks> {
                       'task_des': _taskDescController.text,
                       'assignedBy': loginUser
                     };
-                    var res = await addTask(taskData);
+                    var res =
+                        await editTask(widget.taskDetails['taskId'], taskData);
                     print(res);
 
-                    widget.onTaskAdded(taskData);
                     Navigator.pop(context);
-                    _showSnackBar('Task added successfully');
+                    _showSnackBar('Task Edited successfully');
                   }
                 },
-                child: const Text("Submit"),
+                child: const Text("Update"),
               ),
             ],
           ),
